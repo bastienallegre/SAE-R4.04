@@ -41,8 +41,36 @@ generer_matrice <- function(n, p) {
   return(mat)
 }
 ```
+<<<<<<< HEAD
 Par exemple pour 5 étudiants et 5 stages on obtient la matrice suivante : 
 ```{r echo=FALSE}
 matrice <- generer_matrice(5, 5)
 print(matrice)
 ```
+=======
+
+```{r}
+#minimum de chaque ligne
+mat = generer_matrice(5,5)
+apply(mat,1,min)
+
+#minimum de chaque colone 
+mat = generer_matrice(5,5)
+apply(mat,2,min)
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+>>>>>>> 6dd6f1148355e6d3c58cc696879bf7c639e37a21
