@@ -1,6 +1,6 @@
 ---
-title: "Rendu"
-author: "Bastien"
+title: "SAE_R4_04_GroupeSAE-9_A21"
+author: "Bastien ALLEGRE, Hugo BARBIERI, Emeric DIEUDONNE, Amaury GAU, Louis VICAT"
 date: "2025-02-26"
 output: pdf_document
 ---
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 On commence par définir p un nombre d'étudiant et n le nombre de stage disponible.
 
-```{r}
+```{r echo=TRUE}
 n <- sample(1:100, 1)
 p <- sample(1:100, 1)
 print(n)
@@ -22,7 +22,7 @@ print(p)
 
 ## Création de la matrice de préférence
 
-```{r}
+```{r, echo=TRUE}
 generer_matrice <- function(n, p) {
   # Créer une matrice vide
   mat <- matrix(nrow = p, ncol = n)
@@ -40,6 +40,9 @@ generer_matrice <- function(n, p) {
   
   return(mat)
 }
-
-matrice <- generer_matrice(n, p)
+```
+Par exemple pour 5 étudiants et 5 stages on obtient la matrice suivante : 
+```{r echo=FALSE}
+matrice <- generer_matrice(5, 5)
+print(matrice)
 ```
