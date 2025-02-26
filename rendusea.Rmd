@@ -43,3 +43,28 @@ generer_matrice <- function(n, p) {
 
 matrice <- generer_matrice(n, p)
 ```
+
+```{r}
+#minimum de chaque ligne
+mat = generer_matrice(5,5)
+apply(mat,1,min)
+
+#minimum de chaque colone 
+mat = generer_matrice(5,5)
+apply(mat,2,min)
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
