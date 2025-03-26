@@ -15,7 +15,7 @@ Dans ce projet, nous abordons le problème d’affectation des stages aux étudi
 
 $p$ le nombre d’étudiants,
 
-$n$ le nombre de stages avec $n≥p$.
+$n$ le nombre de stages avec $n \ge p$.
 
 En cas de $n > p$, des étudiants fictifs peuvent être ajoutés afin d’obtenir une matrice carrée, sans influencer la solution optimale.
 
@@ -24,7 +24,7 @@ En cas de $n > p$, des étudiants fictifs peuvent être ajoutés afin d’obteni
 ## Hypothèses
 
 -   Chaque étudiant classe les stages en fonction d’un **ordre de préférence** exprimé sous forme d'un coût.
--   La matrice de préférences est **carrée**, si $n>p$ nous complétons par des étudiants ficitfs avec des couts sans influences sur l'optimisation
+-   La matrice de préférences est **carrée**, si $n > p$ nous complétons par des étudiants ficitfs avec des couts sans influences sur l'optimisation
 -   L’objectif est de minimiser le **coût total d’affectation**. défini par :
 
 $min\sum_{i=1}^n \space c_i,\sigma(i)$
@@ -154,7 +154,7 @@ Nous avons utilisé l’algorithme hongrois pour résoudre le problème d’affe
 
 intégrer des pondérations liées aux compétences des étudiants ou aux spécificités des stages.
 
--   **MOdification de certaines hypothèses :**
+-   **Modification de certaines hypothèses :**
 
 Remplacer l’hypothèse d’un coût unique par étudiant-stage par une modélisation multi-critères.
 Gérer de manière dynamique le cas $n > p$ en attribuant un coût variable aux étudiants fictifs selon des critères définis.
