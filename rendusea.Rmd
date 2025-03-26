@@ -8,22 +8,34 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 # Introduction
 
-Dans ce projet, nous abordons le problème d’affectation des stages aux étudiants en utilisant l’**algorithme hongrois**. L’objectif est d’attribuer à chaque étudiant un stage en fonction de ses préférences tout en optimisant l’affectation globale.
+Dans ce projet, nous abordons le problème d’affectation des stages aux étudiants en utilisant l’**algorithme hongrois**. L’objectif est d’attribuer à chaque étudiant un stage en fonction de ses préférences tout en optimisant l’affectation globale. cela se ramène à un problème **d’optimisation combinatoire**. Soit :
 
-Nous supposons que le nombre de stages disponibles ($n$) est supérieur ou égal au nombre d’étudiants ($p$). Si $n > p$, nous complétons la matrice avec des étudiants fictifs en attribuant des valeurs qui n’impactent pas l’optimisation.
+$p$ le nombre d’étudiants,
+
+$n$ le nombre de stages avec $n≥p$.
+
+En cas de $n > p$, des étudiants fictifs peuvent être ajoutés afin d’obtenir une matrice carrée, sans influencer la solution optimale.
 
 # Modélisation du problème
 
 ## Hypothèses
-- Chaque étudiant classe les stages en fonction d’un **ordre de préférence**.
-- Les préférences sont exprimées sous forme de **coûts** (plus la valeur est faible, plus la préférence est forte).
-- La matrice de préférences est **carrée** (ajout d’étudiants fictifs si nécessaire).
-- L’objectif est de minimiser le **coût total d’affectation**.
+
+-   Chaque étudiant classe les stages en fonction d’un **ordre de préférence** exprimé sous forme d'un coût.
+-   La matrice de préférences est **carrée**, si $n>p$ nous complétons par des étudiants ficitfs avec des couts sans influences sur l'optimisation
+-   L’objectif est de minimiser le **coût total d’affectation**. défini par :
+
+$min\sum_{i=1}^n \space c_i,\sigma(i)$
+
+où $\sigma$ est une permutation représentant l’affectation.
 
 ## Représentation matricielle
-Soit $C$ la matrice des préférences où $C_{i,j}$ représente la préférence de l’étudiant $i$ pour le stage $j$.
+
+Pour modéliser ce problème, nous utilisons une matrice des préférences $C$ de dimension $n×n$, où chaque élément $C_{i,j}$​ représente le coût (ou l'inverse de la préférence) de l’affectation de l’étudiant $i$ au stage $j$. Ainsi, plus $C_{i,j}$​ est faible, meilleure est la correspondance entre l’étudiant et le stage
+
+Soit $C$ la matrice des préférences où sont représenté la préférence de l’étudiant $i$ pour le stage $j$.
 
 $$
 C = \begin{bmatrix} 
@@ -34,23 +46,44 @@ c_{n1} & c_{n2} & ... & c_{nn}
 \end{bmatrix}
 $$
 
-# Algorithme hongrois
+# Algorithme utilisé pour résoudre ce problème :
 
-L’algorithme hongrois se déroule en plusieurs étapes :
+## Algorithme hongrois
 
-1. **Normalisation des préférences** : Soustraction du minimum de chaque ligne.
-2. **Réduction des colonnes** : Soustraction du minimum de chaque colonne.
-3. **Marquage des zéros** : Sélection des 0 pour maximiser l’affectation.
-4. **Ajustement de la matrice** si une affectation complète n’est pas possible.
+L'algorithme hongrois est un algorithme de compléxité **O(n³)**. Il résound le problème d'affectation en minimisant la fonction coût.Il fonctionne en plusieurs étapes d'abord en ajustant une matrice de coûts pour créer des zéros, puis en trouvant une affectation optimale :
+
+### Etape 1. **Normalisation des préférences**
+
+Pour chaque ligne $i$, on soustrait le minimum de la ligne : $C^\prime_{ij}=C_{ij}-min_j\{c_{ij}\}$ Puis, pour chaque colonne $j$, on soustrait le minimum de la colonne obtenue : $C^{\prime\prime}_{ij}=C^\prime_{ij}-min_i\{c^\prime_{ij}\}$ Ce processus garantit qu’il y aura au moins un zéro dans chaque ligne et chaque colonne.
+
+### Etape 2. **Marquage des zéros**
+
+On identifie une première affectation en marquant les zéros de façon à ce que : - Chaque zéro marqué représente une affectation potentielle. - Une même ligne ou colonne ne peut contenir plus d’un zéro marqué.
+
+### Etape 3. **Vérification de l’optimalité**
+
+Si l’affectation initiale compte $n$ affectations (pour une matrice $n\times n$), la solution est optimale. Sinon, il faut procéder à un ajustement de la matrice.
+
+### Etape 4. **Ajustement de la matrice** :
+
+Pour les éléments non couverts par les lignes ou colonnes contenant les zéros marqués :
+
+1.  Trouver la plus petite valeur non couverte $\delta$
+
+2.  Soustraire $\delta$ de tous les éléments non couverts
+
+3.  Ajouter $\delta$ aux éléments situés à l'intersection des lignes et colonnes couvertes
+
+Ces opérations permettent de créer de nouveaux zéros et, par itérations successives, d'améliorer l'affectation jusqu'à obtenir une solution optimale
 
 ## Implémentation en R (sans bibliothèque externe)
 
 ```{r}
-# Génération aléatoire d’une matrice de préférences
+# Génération aléatoire d’une matrice représentant les préférences des stages pour les étudiants
 set.seed(123)
 n <- 4  # Nombre d'étudiants/stages
 C <- matrix(sample(1:10, n*n, replace=TRUE), nrow=n, ncol=n)
-print("Matrice initiale des préférences:")
+print("Matrice initiale de la matrice représentant les préférences:")
 print(C)
 
 # Étape 1: Soustraction du minimum de chaque ligne
@@ -105,9 +138,23 @@ print(resultat)
 
 # Résultats et interprétation
 
-Les résultats affichent la meilleure affectation possible en minimisant le coût total. L'affectation optimale est obtenue via la matrice réduite et le marquage des zéros.
+-   **Matrice initiale** : Représente les coûts initiaux associés aux préférences.
+-   **Étapes de réduction** : Permettent de créer une matrice avec des zéros facilitant l’identification de l’affectation optimale.
+-   **Résultat final** : Le vecteur resultat indique pour chaque étudiant (par indice de ligne) le stage (par indice de colonne) qui minimise le coût total.
 
 # Conclusion et perspectives
 
-Nous avons utilisé l’algorithme hongrois pour résoudre le problème d’affectation des stages en minimisant le coût total. Une extension future pourrait inclure des pondérations supplémentaires (compétences, contraintes spécifiques, etc.).
+## Conclusion :
 
+Nous avons utilisé l’algorithme hongrois pour résoudre le problème d’affectation des stages en minimisant le coût total. La méthode s’appuie sur une réduction itérative de la matrice des coûts et sur un marquage stratégique des zéros pour identifier une affectation optimale.
+
+## Perspectives d’amélioration :
+
+-   **Prise en compte de contraintes supplémentaires :**
+
+intégrer des pondérations liées aux compétences des étudiants ou aux spécificités des stages.
+
+-   **MOdification de certaines hypothèses :**
+
+Remplacer l’hypothèse d’un coût unique par étudiant-stage par une modélisation multi-critères.
+Gérer de manière dynamique le cas $n > p$ en attribuant un coût variable aux étudiants fictifs selon des critères définis.
