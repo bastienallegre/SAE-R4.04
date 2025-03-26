@@ -157,4 +157,5 @@ intégrer des pondérations liées aux compétences des étudiants ou aux spéci
 -   **Modification de certaines hypothèses :**
 
 Remplacer l’hypothèse d’un coût unique par étudiant-stage par une modélisation multi-critères.
+
 Gérer de manière dynamique le cas $n > p$ en attribuant un coût variable aux étudiants fictifs selon des critères définis.
