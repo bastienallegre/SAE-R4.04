@@ -8,53 +8,106 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Introduction
 
-## Initialisation
+Dans ce projet, nous abordons le problème d’affectation des stages aux étudiants en utilisant l’**algorithme hongrois**. L’objectif est d’attribuer à chaque étudiant un stage en fonction de ses préférences tout en optimisant l’affectation globale.
 
-On commence par définir p un nombre d'étudiant et n le nombre de stage disponible.
+Nous supposons que le nombre de stages disponibles ($n$) est supérieur ou égal au nombre d’étudiants ($p$). Si $n > p$, nous complétons la matrice avec des étudiants fictifs en attribuant des valeurs qui n’impactent pas l’optimisation.
 
-```{r echo=TRUE}
-n <- sample(1:100, 1)
-p <- sample(1:100, 1)
-print(n)
-print(p)
-```
+# Modélisation du problème
 
-## Création de la matrice de préférence
+## Hypothèses
+- Chaque étudiant classe les stages en fonction d’un **ordre de préférence**.
+- Les préférences sont exprimées sous forme de **coûts** (plus la valeur est faible, plus la préférence est forte).
+- La matrice de préférences est **carrée** (ajout d’étudiants fictifs si nécessaire).
+- L’objectif est de minimiser le **coût total d’affectation**.
 
-```{r, echo=TRUE}
-generer_matrice <- function(n, p) {
-  # Créer une matrice vide
-  mat <- matrix(nrow = p, ncol = n)
-  
-  # Remplir chaque ligne avec un échantillon aléatoire des nombres 1 à n
-  for (i in 1:p) {
-    mat[i, ] <- sample(1:n)  # Mélange des nombres de 1 à n
-  }
-  
-  # Nommer les colonnes (a, b, c, ...)
-  colnames(mat) <- letters[1:n]
-  
-  # Nommer les lignes (A, B, C, ...)
-  rownames(mat) <- LETTERS[1:p]
-  
-  return(mat)
-}
-```
-Par exemple pour 5 étudiants et 5 stages on obtient la matrice suivante : 
-```{r echo=FALSE}
-matrice <- generer_matrice(5, 5)
-print(matrice)
-```
+## Représentation matricielle
+Soit $C$ la matrice des préférences où $C_{i,j}$ représente la préférence de l’étudiant $i$ pour le stage $j$.
+
+$$
+C = \begin{bmatrix} 
+c_{11} & c_{12} & ... & c_{1n} \\
+c_{21} & c_{22} & ... & c_{2n} \\
+... & ... & ... & ... \\
+c_{n1} & c_{n2} & ... & c_{nn} 
+\end{bmatrix}
+$$
+
+# Algorithme hongrois
+
+L’algorithme hongrois se déroule en plusieurs étapes :
+
+1. **Normalisation des préférences** : Soustraction du minimum de chaque ligne.
+2. **Réduction des colonnes** : Soustraction du minimum de chaque colonne.
+3. **Marquage des zéros** : Sélection des 0 pour maximiser l’affectation.
+4. **Ajustement de la matrice** si une affectation complète n’est pas possible.
+
+## Implémentation en R (sans bibliothèque externe)
 
 ```{r}
-#minimum de chaque ligne
-mat = generer_matrice(5,5)
-apply(mat,1,min)
+# Génération aléatoire d’une matrice de préférences
+set.seed(123)
+n <- 4  # Nombre d'étudiants/stages
+C <- matrix(sample(1:10, n*n, replace=TRUE), nrow=n, ncol=n)
+print("Matrice initiale des préférences:")
+print(C)
 
-#minimum de chaque colone 
-mat = generer_matrice(5,5)
-apply(mat,2,min)
+# Étape 1: Soustraction du minimum de chaque ligne
+row_min <- apply(C, 1, min)
+C <- sweep(C, 1, row_min, FUN="-")
+print("Après soustraction du minimum de chaque ligne:")
+print(C)
 
+# Étape 2: Soustraction du minimum de chaque colonne
+col_min <- apply(C, 2, min)
+C <- sweep(C, 2, col_min, FUN="-")
+print("Après soustraction du minimum de chaque colonne:")
+print(C)
+
+# Fonction pour trouver l'affectation optimale
+find_assignment <- function(C) {
+  n <- nrow(C)
+  assignment <- rep(NA, n)
+  covered_rows <- rep(FALSE, n)
+  covered_cols <- rep(FALSE, n)
+  
+  repeat {
+    # Marquage des zéros avec un X pour les affectations initiales
+    for (i in 1:n) {
+      for (j in 1:n) {
+        if (C[i, j] == 0 && !covered_rows[i] && !covered_cols[j]) {
+          assignment[i] <- j
+          covered_rows[i] <- TRUE
+          covered_cols[j] <- TRUE
+          break
+        }
+      }
+    }
+    
+    # Vérifier si une affectation complète est obtenue
+    if (all(!is.na(assignment))) break
+    
+    # Ajustement de la matrice pour les éléments non couverts
+    uncovered_values <- C[!covered_rows, !covered_cols, drop=FALSE]
+    min_value <- min(uncovered_values)
+    C[!covered_rows, !covered_cols] <- C[!covered_rows, !covered_cols] - min_value
+    C[covered_rows, covered_cols] <- C[covered_rows, covered_cols] + min_value
+  }
+  return(assignment)
+}
+
+# Résolution du problème
+resultat <- find_assignment(C)
+print("Affectation optimale:")
+print(resultat)
 ```
+
+# Résultats et interprétation
+
+Les résultats affichent la meilleure affectation possible en minimisant le coût total. L'affectation optimale est obtenue via la matrice réduite et le marquage des zéros.
+
+# Conclusion et perspectives
+
+Nous avons utilisé l’algorithme hongrois pour résoudre le problème d’affectation des stages en minimisant le coût total. Une extension future pourrait inclure des pondérations supplémentaires (compétences, contraintes spécifiques, etc.).
 
