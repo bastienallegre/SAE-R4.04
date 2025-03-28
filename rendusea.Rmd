@@ -76,7 +76,7 @@ Pour les éléments non couverts par les lignes ou colonnes contenant les zéros
 
 Ces opérations permettent de créer de nouveaux zéros et, par itérations successives, d'améliorer l'affectation jusqu'à obtenir une solution optimale
 
-## Implémentation en R (sans bibliothèque externe)
+## Implémentation en R
 
 ```{r}
 # Génération aléatoire d’une matrice représentant les préférences des stages pour les étudiants
